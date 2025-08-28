@@ -34,7 +34,9 @@
     </ItemGroup>
 
     <ItemGroup>
-      <Folder Include="Adapters\" />
+      <Folder Include="Adapters\Grpc\" />
+      <Folder Include="Adapters\Kafka\" />
+      <Folder Include="Adapters\Postgres\" />
     </ItemGroup>
 
 </Project>
