@@ -11,6 +11,8 @@ namespace DeliveryApp.Core.Domain.SharedKernel
         public const int YStartLocation = 1;
         public const int YEndLocation = 10;
 
+        public const int RandomizerCorrectingUpperLimitValue = 1;
+
         public const string XName = nameof(X);
         public const string YName = nameof(Y);
     }

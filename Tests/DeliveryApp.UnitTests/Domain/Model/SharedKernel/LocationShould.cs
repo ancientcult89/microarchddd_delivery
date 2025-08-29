@@ -121,19 +121,6 @@ namespace DeliveryApp.UnitTests.Domain.Model.SharedKernel
             backwardStartLocation.Value.DistanceTo(backwardDestination.Value).Should().Be(expectedDistance);
         }
 
-
-        [Fact]
-        public void BeCorrectWhenItsRandom()
-        {
-            //Arrange
-
-            //Act
-            var location = Location.CreateRandom();
-
-            //Assert
-            location.Should().NotBeNull();
-        }
-
         [Fact]
         public void BeCorrectWhenItsMultipleRandom()
         {
@@ -141,7 +128,7 @@ namespace DeliveryApp.UnitTests.Domain.Model.SharedKernel
             {
                 var location = Location.CreateRandom();
 
-                location.Should().NotBeNull();
+                location.IsSuccess.Should().BeTrue();
             }
         }
     }

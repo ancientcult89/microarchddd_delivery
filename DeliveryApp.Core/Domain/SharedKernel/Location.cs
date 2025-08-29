@@ -27,13 +27,13 @@ namespace DeliveryApp.Core.Domain.SharedKernel
             return new Location(x, y);
         }
 
-        public static Location CreateRandom()
+        public static Result<Location, Error> CreateRandom()
         {
 
-            int x = _random.Next(XStartLocation, XEndLocation + 1);
-            int y = _random.Next(YStartLocation, YEndLocation + 1);
+            int x = _random.Next(XStartLocation, XEndLocation + RandomizerCorrectingUpperLimitValue);
+            int y = _random.Next(YStartLocation, YEndLocation + RandomizerCorrectingUpperLimitValue);
 
-            return new Location(x, y);
+            return Location.Create(x, y);
         }
 
 
