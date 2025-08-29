@@ -15,12 +15,12 @@ namespace DeliveryApp.UnitTests.Domain.Model.SharedKernel
             //Arrange
 
             //Act
-            var location = new Location(1, 5);
+            var location = Location.Create(1, 5);
 
             //Assert
-            location.Should().NotBeNull();
-            location.X.Should().Be(1);
-            location.Y.Should().Be(5);
+            location.IsSuccess.Should().BeTrue();
+            location.Value.X.Should().Be(1);
+            location.Value.Y.Should().Be(5);
         }
 
         [Fact]
@@ -29,11 +29,11 @@ namespace DeliveryApp.UnitTests.Domain.Model.SharedKernel
             //Arrange
 
             //Act
-            var firstLocation = new Location(1, 5);
-            var secondLocation = new Location(1, 5);
+            var firstLocation = Location.Create(1, 5);
+            var secondLocation = Location.Create(1, 5);
 
             //Assert
-            firstLocation.Should().Be(secondLocation);
+            firstLocation.Value.Should().Be(secondLocation.Value);
         }
 
         [Fact]
@@ -42,26 +42,28 @@ namespace DeliveryApp.UnitTests.Domain.Model.SharedKernel
             //Arrange
 
             //Act
-            var firstLocation = new Location(1, 5);
-            var secondLocation = new Location(1, 6);
+            var firstLocation = Location.Create(1, 5);
+            var secondLocation = Location.Create(1, 6);
 
             //Assert
-            firstLocation.Should().NotBe(secondLocation);
+            firstLocation.Value.Should().NotBe(secondLocation.Value);
         }
 
         [Theory]
         [InlineData(11, 1)]
         [InlineData(0, 10)]
         [InlineData(-1, 3)]
-        public void ThrowExcceptionWhenXParamIsIncorrectAndYParamIsCorrectOnCreated(int x, int y)
+        public void ReturnErrorWhenXParamIsIncorrectAndYParamIsCorrectOnCreated(int x, int y)
         {
             //Arrange
+            string errorString = "X should be between 1 and 10";
 
             //Act
-            Action act = () => new Location(x, y);
+            var location =  Location.Create(x, y);
 
             //Assert
-            act.Should().Throw<ArgumentException>().WithMessage("X should be between 1 and 10");
+            location.IsSuccess.Should().BeFalse();
+            location.Error.Message.Should().Be(errorString);
         }
 
         [Theory]
@@ -69,15 +71,17 @@ namespace DeliveryApp.UnitTests.Domain.Model.SharedKernel
         [InlineData(4, -8)]
         [InlineData(2, 11)]
 
-        public void ThrowExcceptionWhenYParamIsIncorrectAndXParamIsCorrectOnCreated(int x, int y)
+        public void ReturnErrorWhenYParamIsIncorrectAndXParamIsCorrectOnCreated(int x, int y)
         {
             //Arrange
+            string errorString = "Y should be between 1 and 10";
 
             //Act
-            Action act = () => new Location(x, y);
+            var location = Location.Create(x, y);
 
             //Assert
-            act.Should().Throw<ArgumentException>();
+            location.IsSuccess.Should().BeFalse();
+            location.Error.Message.Should().Be(errorString);
         }
 
         [Theory]
@@ -86,15 +90,16 @@ namespace DeliveryApp.UnitTests.Domain.Model.SharedKernel
         [InlineData(-1, -1)]
         [InlineData(-2, 11)]
         [InlineData(11, -5)]
-        public void ThrowExcceptionWhenParamsIsIncorrectOnCreated(int x, int y)
+        public void ReturnErrorWhenParamsIsIncorrectOnCreated(int x, int y)
         {
             //Arrange
 
             //Act
-            Action act = () => new Location(x, y);
+            var location = Location.Create(x, y);
 
             //Assert
-            act.Should().Throw<ArgumentException>();
+            location.IsSuccess.Should().BeFalse();
+            location.Error.Should().NotBeNull();
         }
 
         [Theory]
@@ -105,15 +110,15 @@ namespace DeliveryApp.UnitTests.Domain.Model.SharedKernel
             //Arrange
 
             //Act
-            var startLocation = new Location(x1, y1);
-            var destination = new Location(x2, y2);
+            var startLocation = Location.Create(x1, y1);
+            var destination = Location.Create(x2, y2);
 
-            var backwardStartLocation = new Location(x2, y2);
-            var backwardDestination = new Location(x1, y1);
+            var backwardStartLocation = Location.Create(x2, y2);
+            var backwardDestination = Location.Create(x1, y1);
 
             //Assert
-            startLocation.DistanceTo(destination).Should().Be(expectedDistance);
-            backwardStartLocation.DistanceTo(backwardDestination).Should().Be(expectedDistance);
+            startLocation.Value.DistanceTo(destination.Value).Should().Be(expectedDistance);
+            backwardStartLocation.Value.DistanceTo(backwardDestination.Value).Should().Be(expectedDistance);
         }
 
 

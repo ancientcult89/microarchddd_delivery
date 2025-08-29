@@ -23,6 +23,12 @@ public static class GeneralErrors
         return new Error("value.is.required", $"Value is required for {name}");
     }
 
+    public static Error ValueIsNotInRange(string name, int startRange, int endRange)
+    {
+        if (string.IsNullOrEmpty(name)) throw new ArgumentException(name);
+        return new Error("value.is.not.in.range", $"{name} should be between {startRange} and {endRange}");
+    }
+
     public static Error InvalidLength(string name)
     {
         if (string.IsNullOrEmpty(name)) throw new ArgumentException(name);

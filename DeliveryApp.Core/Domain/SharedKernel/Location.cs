@@ -3,7 +3,7 @@ using Primitives;
 
 namespace DeliveryApp.Core.Domain.SharedKernel
 {
-    public class Location : ValueObject
+    public partial class Location : ValueObject
     {
         public int X { get; private set; }
         public int Y { get; private set; }
@@ -11,46 +11,27 @@ namespace DeliveryApp.Core.Domain.SharedKernel
 
         private Location() { }
 
-        public Location(int x, int y) : this()
+        private Location(int x, int y) : this()
         {
-            try
-            {
-                SetX(x);
-                SetY(y);
-            }
-            catch(ArgumentException e)
-            {
-                throw new ArgumentException(e.Message);
-            }
+            X = x;
+            Y = y;
         }
 
-        public void SetX(int x)
+        public static Result<Location, Error> Create(int x, int y)
         {
-            if (x < 1)
-                throw new ArgumentException(LocationErrors.xRangeError);
+            if (x < XStartLocation || x > XEndLocation)
+                return GeneralErrors.ValueIsNotInRange(XName, XStartLocation, XEndLocation);
+            if (y < YStartLocation || y > YEndLocation)
+                return GeneralErrors.ValueIsNotInRange(YName, XStartLocation, XEndLocation);
 
-            if (x > 10) 
-                throw new ArgumentException(LocationErrors.xRangeError);
-
-            this.X = x;
-        }
-
-        public void SetY(int y)
-        {
-            if (y < 1)
-                throw new ArgumentException(LocationErrors.yRangeError);
-
-            if (y > 10)
-                throw new ArgumentException(LocationErrors.yRangeError);
-
-            this.Y = y;
+            return new Location(x, y);
         }
 
         public static Location CreateRandom()
         {
 
-            int x = _random.Next(1, 11);
-            int y = _random.Next(1, 11);
+            int x = _random.Next(XStartLocation, XEndLocation + 1);
+            int y = _random.Next(YStartLocation, YEndLocation + 1);
 
             return new Location(x, y);
         }
