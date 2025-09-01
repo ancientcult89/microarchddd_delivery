@@ -1,7 +1,5 @@
 ﻿using DeliveryApp.Core.Domain.SharedKernel;
 using FluentAssertions;
-using NSubstitute.ExceptionExtensions;
-using System;
 using Xunit;
 
 namespace DeliveryApp.UnitTests.Domain.Model.SharedKernel
@@ -59,7 +57,7 @@ namespace DeliveryApp.UnitTests.Domain.Model.SharedKernel
             string errorString = "X should be between 1 and 10";
 
             //Act
-            var location =  Location.Create(x, y);
+            var location = Location.Create(x, y);
 
             //Assert
             location.IsSuccess.Should().BeFalse();

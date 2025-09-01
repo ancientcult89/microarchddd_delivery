@@ -21,7 +21,7 @@
 
     <ItemGroup>
       <Folder Include="Application\UseCases\" />
-      <Folder Include="Domain\Model\" />
+      <Folder Include="Domain\Model\OrderAggrerate\" />
       <Folder Include="Domain\Services\" />
       <Folder Include="Ports\" />
     </ItemGroup>
