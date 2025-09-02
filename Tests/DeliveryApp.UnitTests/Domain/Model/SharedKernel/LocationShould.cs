@@ -115,8 +115,28 @@ namespace DeliveryApp.UnitTests.Domain.Model.SharedKernel
             var backwardDestination = Location.Create(x1, y1);
 
             //Assert
-            startLocation.Value.DistanceTo(destination.Value).Should().Be(expectedDistance);
-            backwardStartLocation.Value.DistanceTo(backwardDestination.Value).Should().Be(expectedDistance);
+            startLocation.Value.DistanceTo(destination.Value).Value.Should().Be(expectedDistance);
+            backwardStartLocation.Value.DistanceTo(backwardDestination.Value).Value.Should().Be(expectedDistance);
+        }
+
+        [Theory]
+        [InlineData(2, 6)]
+
+        public void ReturnErrorWhenDestinationIsIncorrect(int x1, int y1)
+        {
+            //Arrange
+
+            //Act
+            var startLocation = Location.Create(x1, y1);
+
+            Location nullDestination = null;
+
+            var result = startLocation.Value.DistanceTo(nullDestination);
+
+            //Assert
+            //Assert
+            result.IsSuccess.Should().BeFalse();
+            result.Error.Should().NotBeNull();
         }
 
         [Fact]

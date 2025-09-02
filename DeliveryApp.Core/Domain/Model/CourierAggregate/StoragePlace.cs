@@ -60,6 +60,6 @@ namespace DeliveryApp.Core.Domain.Model.CourierAggregate
         }
 
         private bool IsOccupied() =>
-            OrderId.HasValue;
+            this.OrderId.HasValue;
     }
 }

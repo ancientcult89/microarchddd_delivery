@@ -37,8 +37,11 @@ namespace DeliveryApp.Core.Domain.SharedKernel
         }
 
 
-        public int DistanceTo(Location destination)
+        public Result<int, Error> DistanceTo(Location destination)
         {
+            if(destination == null)
+                return GeneralErrors.ValueIsRequired(nameof(destination));
+
             int distanceX = Math.Abs(this.X - destination.X);
             int distanceY = Math.Abs(this.Y - destination.Y);
 
