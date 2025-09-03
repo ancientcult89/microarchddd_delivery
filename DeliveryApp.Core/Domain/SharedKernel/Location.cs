@@ -9,6 +9,8 @@ namespace DeliveryApp.Core.Domain.SharedKernel
         public int Y { get; private set; }
         private static readonly Random _random = new Random();
 
+        public static Location MinLocation => new(1, 1);
+        public static Location MaxLocation => new(10, 10);
         private Location() { }
 
         private Location(int x, int y) : this()
@@ -19,10 +21,10 @@ namespace DeliveryApp.Core.Domain.SharedKernel
 
         public static Result<Location, Error> Create(int x, int y)
         {
-            if (x < XStartLocation || x > XEndLocation)
-                return GeneralErrors.ValueIsNotInRange(XName, XStartLocation, XEndLocation);
-            if (y < YStartLocation || y > YEndLocation)
-                return GeneralErrors.ValueIsNotInRange(YName, XStartLocation, XEndLocation);
+            if (x < MinLocation.X || x > MaxLocation.X)
+                return GeneralErrors.ValueIsNotInRange(XName, MinLocation.X, MaxLocation.X);
+            if (y < MinLocation.Y || y > MaxLocation.Y)
+                return GeneralErrors.ValueIsNotInRange(YName, MinLocation.Y, MaxLocation.Y);
 
             return new Location(x, y);
         }
@@ -30,8 +32,8 @@ namespace DeliveryApp.Core.Domain.SharedKernel
         public static Result<Location, Error> CreateRandom()
         {
 
-            int x = _random.Next(XStartLocation, XEndLocation + RandomizerCorrectingUpperLimitValue);
-            int y = _random.Next(YStartLocation, YEndLocation + RandomizerCorrectingUpperLimitValue);
+            int x = _random.Next(MinLocation.X, MaxLocation.X + RandomizerCorrectingUpperLimitValue);
+            int y = _random.Next(MinLocation.Y, MaxLocation.Y + RandomizerCorrectingUpperLimitValue);
 
             return Location.Create(x, y);
         }

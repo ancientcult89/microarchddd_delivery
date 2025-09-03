@@ -1,4 +1,5 @@
 ﻿using DeliveryApp.Core.Domain.Model.CourierAggregate;
+using DeliveryApp.Core.Domain.Model.OrderAggrerate;
 using FluentAssertions;
 using System;
 using Xunit;
@@ -230,7 +231,7 @@ namespace DeliveryApp.UnitTests.Domain.Model.CourierAggregate
 
             // Assert
             result.IsSuccess.Should().BeFalse();
-            result.Error.Message.Should().Contain("Value is invalid for orderId");
+            result.Error.Message.Should().Contain($"Storage place {storage.Id.ToString()} do not contain such order as {differentOrderId.ToString()}");
             storage.OrderId.Should().Be(storedOrderId);
         }
 
@@ -246,7 +247,7 @@ namespace DeliveryApp.UnitTests.Domain.Model.CourierAggregate
 
             // Assert
             result.IsSuccess.Should().BeFalse();
-            result.Error.Message.Should().Contain("Value is invalid for orderId");
+            result.Error.Message.Should().Contain("Cant clear empty storage place");
             storage.OrderId.Should().BeNull();
         }
     }
