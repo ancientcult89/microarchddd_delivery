@@ -217,6 +217,7 @@ namespace DeliveryApp.UnitTests.Domain.Model.CourierAggregate
             courier.TakeOrder(order);
             order.Assign(courier);
             StoragePlace assignedStoragePlace = courier.StoragePlaces.Where(sp => sp.OrderId == order.Id).First();
+            OrderStatus sourceOrderStatus = order.Status;
 
             // Act
             var result = courier.CompleteOrder(order);
@@ -224,7 +225,7 @@ namespace DeliveryApp.UnitTests.Domain.Model.CourierAggregate
             // Assert
             result.IsSuccess.Should().BeTrue();
             assignedStoragePlace.OrderId.Should().BeNull();
-            order.Status.Should().Be(OrderStatus.Completed);
+            order.Status.Should().Be(sourceOrderStatus);
         }
 
         [Fact]

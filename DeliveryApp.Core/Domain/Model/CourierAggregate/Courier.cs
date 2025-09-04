@@ -80,7 +80,6 @@ namespace DeliveryApp.Core.Domain.Model.CourierAggregate
                 return Errors.NoStorageWithSuchOrder();
 
             var clearedOrderStorage = processingOrdersStorage.Clear(order.Id);
-            order.Complete();
 
             return Result.Success<Error>();
         }
