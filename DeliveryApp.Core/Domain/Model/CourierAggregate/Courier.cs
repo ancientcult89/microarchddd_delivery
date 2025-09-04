@@ -10,7 +10,7 @@ namespace DeliveryApp.Core.Domain.Model.CourierAggregate
         public string Name { get; private set; }
         public int Speed { get; private set; }
         public Location Location { get; private set; }
-        public List<StoragePlace> StoragePlaces { get; private set; }
+        public List<StoragePlace> StoragePlaces { get; private set; } = new List<StoragePlace>();
         private Courier() { }
         private Courier(string name, int speed, Location location) : this()
         {
@@ -62,7 +62,7 @@ namespace DeliveryApp.Core.Domain.Model.CourierAggregate
                 return Errors.OrderIsNotSpecified();
             if (!CanTakeOrder(order))
                 return Errors.CantTakeOrder(this.Id, order.Id);
-            if (this.StoragePlaces == null)
+            if (this.StoragePlaces.Count == 0)
                 return Errors.StoragesAreNotSpecified();
 
             StoragePlace freeStoragePlace = StoragePlaces.Where(sp => sp.CanStore(order.Volume).Value).First();
@@ -76,10 +76,11 @@ namespace DeliveryApp.Core.Domain.Model.CourierAggregate
                 return Errors.OrderIsNotSpecified();
 
             StoragePlace processingOrdersStorage = this.StoragePlaces.Where(sp => sp.OrderId == order.Id).FirstOrDefault();
-            if (processingOrdersStorage != null)
+            if (processingOrdersStorage == null)
                 return Errors.NoStorageWithSuchOrder();
 
             var clearedOrderStorage = processingOrdersStorage.Clear(order.Id);
+            order.Complete();
 
             return Result.Success<Error>();
         }

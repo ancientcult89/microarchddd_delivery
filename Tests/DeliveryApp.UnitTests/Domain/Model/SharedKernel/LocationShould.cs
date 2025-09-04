@@ -8,7 +8,7 @@ namespace DeliveryApp.UnitTests.Domain.Model.SharedKernel
     {
 
         [Fact]
-        public void BeCorrectWhenParamsIsCorrectOnCreate()
+        public void BeCorrectWhenParamsAreCorrectOnCreate()
         {
             //Arrange
 
@@ -88,7 +88,7 @@ namespace DeliveryApp.UnitTests.Domain.Model.SharedKernel
         [InlineData(-1, -1)]
         [InlineData(-2, 11)]
         [InlineData(11, -5)]
-        public void ReturnErrorWhenParamsIsIncorrectOnCreated(int x, int y)
+        public void ReturnErrorWhenParamsAreIncorrectOnCreated(int x, int y)
         {
             //Arrange
 

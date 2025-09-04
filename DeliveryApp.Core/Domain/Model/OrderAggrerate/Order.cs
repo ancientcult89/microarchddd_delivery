@@ -30,7 +30,7 @@ namespace DeliveryApp.Core.Domain.Model.OrderAggrerate
                 return LocationErrors.LocationNotSpecified();
 
             if (volume <= 0)
-                return GeneralErrors.ValueIsRequired(nameof(volume));
+                return GeneralErrors.ValueIsInvalid(nameof(volume));
 
             Order createdOrder = new Order(orderId, location, volume);
             createdOrder.Status = OrderStatus.Created;
@@ -43,11 +43,11 @@ namespace DeliveryApp.Core.Domain.Model.OrderAggrerate
             if (courier == null)
                 return Errors.CourierIsNeeded();
 
-            if (this.CourierId != null && this.CourierId != Guid.Empty)
-                return Errors.OrderIsAlreadyAssigned(this.CourierId);
-
             if (this.Status == OrderStatus.Completed)
                 return Errors.OrderIsCompleted(this.Id);
+
+            if (this.CourierId != null && this.CourierId != Guid.Empty)
+                return Errors.OrderIsAlreadyAssigned(this.CourierId);
 
             this.CourierId = courier.Id;
             this.Status = OrderStatus.Assigned;
@@ -73,7 +73,7 @@ namespace DeliveryApp.Core.Domain.Model.OrderAggrerate
             public static Error OrderIsAlreadyAssigned(Guid? courierId)
             {
                 if (!courierId.HasValue) throw new ArgumentException(courierId.ToString());
-                return new Error("order.is.already.assigned", $"Value is invalid for {courierId.ToString()}");
+                return new Error("order.is.already.assigned", $"Value is already assigned for {courierId.ToString()}");
             }
 
             public static Error CourierIsNeeded()
