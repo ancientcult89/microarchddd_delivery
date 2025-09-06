@@ -11,7 +11,7 @@ namespace DeliveryApp.Core.Domain.Model.CourierAggregate
 
         private StoragePlace() { }
 
-        private StoragePlace(string name, int volume)
+        private StoragePlace(string name, int volume) : this()
         {
             this.Id = Guid.NewGuid();
             this.Name = name;
@@ -43,7 +43,7 @@ namespace DeliveryApp.Core.Domain.Model.CourierAggregate
         public UnitResult<Error> Store(Guid orderId, int volume)
         {
             if (!CanStore(volume).Value)
-                return GeneralErrors.ValueIsInvalid(nameof(volume));
+                return GeneralErrors.ValueIsRequired(nameof(volume));
 
             this.OrderId = orderId;
             return UnitResult.Success<Error>();
@@ -51,9 +51,9 @@ namespace DeliveryApp.Core.Domain.Model.CourierAggregate
         public UnitResult<Error> Clear(Guid orderId)
         {
             if (!this.OrderId.HasValue)
-                return GeneralErrors.ValueIsInvalid(nameof(orderId));
+                return Errors.CantClearEmptyStoragePlace(); ;
             if (this.OrderId != orderId)
-                return GeneralErrors.ValueIsInvalid(nameof(orderId));
+                return Errors.StoragePlaceDontContainSuchOrder(this.Id, orderId);
 
             this.OrderId = null;
             return UnitResult.Success<Error>();
@@ -61,5 +61,20 @@ namespace DeliveryApp.Core.Domain.Model.CourierAggregate
 
         private bool IsOccupied() =>
             this.OrderId.HasValue;
+    }
+
+    public static class Errors
+    {
+        public static Error CantClearEmptyStoragePlace()
+        {
+            return new Error("cant.clear.empty.storageplace", $"Cant clear empty storage place");
+        }
+
+        public static Error StoragePlaceDontContainSuchOrder(Guid storagePlace, Guid orderId)
+        {
+            if (orderId == Guid.Empty) throw new ArgumentException(orderId.ToString());
+            if (storagePlace == Guid.Empty) throw new ArgumentException(storagePlace.ToString());
+            return new Error("storage.dont.contain.such.order", $"Storage place {storagePlace.ToString()} do not contain such order as {orderId.ToString()}");
+        }
     }
 }
