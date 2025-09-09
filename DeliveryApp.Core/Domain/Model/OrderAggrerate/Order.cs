@@ -41,13 +41,13 @@ namespace DeliveryApp.Core.Domain.Model.OrderAggrerate
         public UnitResult<Error> Assign(Courier courier)
         {
             if (courier == null)
-                return Errors.CourierIsNeeded();
+                return OrderErrors.CourierIsNeeded();
 
             if (this.Status == OrderStatus.Completed)
-                return Errors.OrderIsCompleted(this.Id);
+                return OrderErrors.OrderIsCompleted(this.Id);
 
             if (this.CourierId != null && this.CourierId != Guid.Empty)
-                return Errors.OrderIsAlreadyAssigned(this.CourierId);
+                return OrderErrors.OrderIsAlreadyAssigned(this.CourierId);
 
             this.CourierId = courier.Id;
             this.Status = OrderStatus.Assigned;
@@ -58,40 +58,14 @@ namespace DeliveryApp.Core.Domain.Model.OrderAggrerate
         public UnitResult<Error> Complete()
         {
             if (!this.CourierId.HasValue)
-                return Errors.OrderIsNotAssigned(this.Id);
+                return OrderErrors.OrderIsNotAssigned(this.Id);
 
             if (this.Status == OrderStatus.Completed)
-                return Errors.OrderIsCompleted(this.Id);
+                return OrderErrors.OrderIsCompleted(this.Id);
 
             this.Status = OrderStatus.Completed;
 
             return UnitResult.Success<Error>();
-        }
-
-        public static class Errors
-        {
-            public static Error OrderIsAlreadyAssigned(Guid? courierId)
-            {
-                if (!courierId.HasValue) throw new ArgumentException(courierId.ToString());
-                return new Error("order.is.already.assigned", $"Value is already assigned for {courierId.ToString()}");
-            }
-
-            public static Error CourierIsNeeded()
-            {
-                return new Error("courier.is.needed", $"Courier is needed");
-            }
-
-            public static Error OrderIsNotAssigned(Guid orderId)
-            {
-                if (orderId == Guid.Empty) throw new ArgumentException(orderId.ToString());
-                return new Error("order.is.not.assigned", $"Order {orderId.ToString()} is not assigned. Its cant complete");
-            }
-
-            public static Error OrderIsCompleted(Guid orderId)
-            {
-                if (orderId == Guid.Empty) throw new ArgumentException(orderId.ToString());
-                return new Error("order.is.completed", $"Order {orderId.ToString()} is already completed");
-            }
         }
     }
 }
