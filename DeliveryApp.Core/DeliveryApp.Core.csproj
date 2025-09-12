@@ -21,7 +21,6 @@
 
     <ItemGroup>
       <Folder Include="Application\UseCases\" />
-      <Folder Include="Ports\" />
     </ItemGroup>
 
 </Project>
