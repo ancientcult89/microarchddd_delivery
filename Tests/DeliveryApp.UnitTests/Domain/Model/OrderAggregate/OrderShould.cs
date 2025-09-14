@@ -3,7 +3,7 @@ using DeliveryApp.Core.Domain.Model.OrderAggrerate;
 using DeliveryApp.Core.Domain.SharedKernel;
 using FluentAssertions;
 using System;
-using System.Xml.Linq;
+using TestUtils;
 using Xunit;
 
 namespace DeliveryApp.UnitTests.Domain.Model.OrderAggregate
@@ -90,8 +90,8 @@ namespace DeliveryApp.UnitTests.Domain.Model.OrderAggregate
         public void SuccessAssigningWhenOrderIsCreatedAndCourierIsValid()
         {
             // Arrange
-            var order = CreateTestOrder();
-            var courier = CreateTestCourier();
+            var order = TestModelCreator.CreateTestOrder();
+            var courier = TestModelCreator.CreateTestCourier();
 
             // Act
             var result = order.Assign(courier);
@@ -106,7 +106,7 @@ namespace DeliveryApp.UnitTests.Domain.Model.OrderAggregate
         public void FailAssigningWhenCourierIsNull()
         {
             // Arrange
-            var order = CreateTestOrder();
+            var order = TestModelCreator.CreateTestOrder();
             Courier courier = null;
 
             // Act
@@ -124,11 +124,11 @@ namespace DeliveryApp.UnitTests.Domain.Model.OrderAggregate
         public void FailAssigningWhenOrderIsAlreadyAssigned()
         {
             // Arrange
-            var order = CreateTestOrder();
-            var firstCourier = CreateTestCourier();
+            var order = TestModelCreator.CreateTestOrder();
+            var firstCourier = TestModelCreator.CreateTestCourier();
             order.Assign(firstCourier);
 
-            var secondCourier = CreateTestCourier();
+            var secondCourier = TestModelCreator.CreateTestCourier();
 
             // Act
             var result = order.Assign(secondCourier);
@@ -145,19 +145,19 @@ namespace DeliveryApp.UnitTests.Domain.Model.OrderAggregate
         public void FailAssigningWhenOrderIsCompleted()
         {
             // Arrange
-            var order = CreateTestOrder();
-            var courier = CreateTestCourier();
+            var order = TestModelCreator.CreateTestOrder();
+            var courier = TestModelCreator.CreateTestCourier();
             order.Assign(courier);
             order.Complete();
-            
 
-            var anotherCourier = CreateTestCourier();
+
+            var anotherCourier = TestModelCreator.CreateTestCourier();
 
             // Act
             var result = order.Assign(anotherCourier);
 
             // Assert
-            result.IsSuccess.Should().BeFalse();             
+            result.IsSuccess.Should().BeFalse();
             result.Error.Message.Should().Contain("is already completed");
             result.Error.Code.Should().Be("order.is.completed");
             order.CourierId.Should().Be(courier.Id);
@@ -168,8 +168,8 @@ namespace DeliveryApp.UnitTests.Domain.Model.OrderAggregate
         public void CompletingOrderBeSuccessWhenOrderIsAssigned()
         {
             // Arrange
-            var order = CreateTestOrder();
-            var courier = CreateTestCourier();
+            var order = TestModelCreator.CreateTestOrder();
+            var courier = TestModelCreator.CreateTestCourier();
             order.Assign(courier);
 
             // Act
@@ -185,7 +185,7 @@ namespace DeliveryApp.UnitTests.Domain.Model.OrderAggregate
         public void CompletingOrderReturnWhenOrderIsNotAssigned()
         {
             // Arrange
-            var order = CreateTestOrder();
+            var order = TestModelCreator.CreateTestOrder();
 
             // Act
             var result = order.Complete();
@@ -202,8 +202,8 @@ namespace DeliveryApp.UnitTests.Domain.Model.OrderAggregate
         public void CompletingOrderReturnErrorWhenOrderIsAlreadyCompleted()
         {
             // Arrange
-            var order = CreateTestOrder();
-            var courier = CreateTestCourier();
+            var order = TestModelCreator.CreateTestOrder();
+            var courier = TestModelCreator.CreateTestCourier();
             order.Assign(courier);
             order.Complete();
 
@@ -216,25 +216,6 @@ namespace DeliveryApp.UnitTests.Domain.Model.OrderAggregate
             result.Error.Code.Should().Be("order.is.completed");
             order.Status.Should().Be(OrderStatus.Completed);
             order.CourierId.Should().Be(courier.Id);
-        }
-
-        private Order CreateTestOrder()
-        {
-            var orderId = Guid.NewGuid();
-            var location = Location.Create(5, 5).Value;
-            var volume = 10;
-
-            return Order.Create(orderId, location, volume).Value;
-        }
-
-        private Courier CreateTestCourier()
-        {
-            var courierId = Guid.NewGuid();
-            var name = $"Test Courier {courierId}";
-            var speed = 2;
-            var location = Location.CreateRandom().Value;
-
-            return Courier.Create(name, speed, location).Value;
         }
     }
 }
