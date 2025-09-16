@@ -29,7 +29,7 @@ namespace DeliveryApp.Infrastructure.Adapters.Postgres.Repositories
         {
             _dbContext.Couriers.Update(courier);
         }
-        public async Task<Maybe<List<Courier>>> GetAllFreeCouriers()
+        public async Task<Maybe<List<Courier>>> GetAllFreeCouriersAsync()
         {
             var couriersWithStorage = await _dbContext
                 .Couriers
@@ -38,6 +38,20 @@ namespace DeliveryApp.Infrastructure.Adapters.Postgres.Repositories
 
             var freeCouriers = couriersWithStorage
                 .Where(c => c.StoragePlaces.All(sp => !sp.IsOccupied()))
+                .ToList();
+
+            return freeCouriers;
+        }
+
+        public async Task<Maybe<List<Courier>>> GetAllBusyCouriersAsync()
+        {
+            var couriersWithStorage = await _dbContext
+                .Couriers
+                .Include(c => c.StoragePlaces)
+                .ToListAsync();
+
+            var freeCouriers = couriersWithStorage
+                .Where(c => c.StoragePlaces.Any(sp => sp.IsOccupied()))
                 .ToList();
 
             return freeCouriers;

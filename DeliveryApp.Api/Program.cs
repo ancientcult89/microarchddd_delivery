@@ -62,8 +62,11 @@ builder.Services.AddScoped<IRequestHandler<MoveCourierCommand, UnitResult<Error>
 builder.Services.AddScoped<IRequestHandler<AssignOrderToCourierCommand, UnitResult<Error>>, AssignOrderToCourierCommandHandler>();
 
 // Queries
-builder.Services.AddScoped<IRequestHandler<GetBusyCouriersQuery, Maybe<GetBusyCouriersResponse>>>(_ =>
-    new GetBusyCouriersQueryHandler(connectionString));
+builder.Services.AddScoped<IRequestHandler<GetBusyCouriersQuery, Maybe<GetBusyCouriersResponse>>>(serviceProvider =>
+{
+    var repository = serviceProvider.GetRequiredService<ICourierRepository>();
+    return new GetBusyCouriersQueryHandler(repository);
+});
 builder.Services.AddScoped<IRequestHandler<GetNotCompletedOrdersQuery, Maybe<GetNotCompletedOrdersResponse>>>(_ =>
     new GetNotCompletedOrdersQueryHandler(connectionString));
 
