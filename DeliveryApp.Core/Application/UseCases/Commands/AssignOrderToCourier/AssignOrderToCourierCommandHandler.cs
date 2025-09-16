@@ -34,6 +34,9 @@ namespace DeliveryApp.Core.Application.UseCases.Commands.AssignOrderToCourier
             if(!dispatchResult.IsSuccess)
                 return dispatchResult.Error;
 
+            _orderRepository.Update(firstCreatedOrders.Value);
+            _courierRepository.Update(dispatchResult.Value);
+
             await _unitOfWork.SaveChangesAsync();
 
             return UnitResult.Success<Error>();

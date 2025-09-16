@@ -53,7 +53,6 @@ namespace DeliveryApp.Core.Application.UseCases.Commands.MoveCourier
 
             var processingOrderResult = await _orderRepository.GetAsync(courierOrderId);
 
-
             //аналогично могло быть, что в параллельном потоке заказ завершили, но не успели закоммитить,
             //в результате по курьеру была устаревшая информация о заказе
             if (processingOrderResult.HasNoValue)
