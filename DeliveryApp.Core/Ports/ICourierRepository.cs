@@ -1,6 +1,5 @@
 ﻿using CSharpFunctionalExtensions;
 using DeliveryApp.Core.Domain.Model.CourierAggregate;
-using DeliveryApp.Core.Domain.Model.OrderAggrerate;
 
 namespace DeliveryApp.Core.Ports
 {
@@ -30,6 +29,12 @@ namespace DeliveryApp.Core.Ports
         ///  Получить всех незанятых
         /// </summary>
         /// <returns>Курьеры</returns>
-        Task<Maybe<List<Courier>>> GetAllFreeCouriers();
+        Task<Maybe<List<Courier>>> GetAllFreeCouriersAsync();
+
+        /// <summary>
+        /// возвращает всех занятых курьеров
+        /// </summary>
+        /// <returns></returns>
+        Task<Maybe<List<Courier>>> GetAllBusyCouriersAsync();
     }
 }

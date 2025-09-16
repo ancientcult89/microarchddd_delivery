@@ -132,7 +132,7 @@ namespace DeliveryApp.IntegrationTests.Repositories
             await unitOfWork.SaveChangesAsync();
 
             // Act
-            var freeCouriersResult = await courierRepository.GetAllFreeCouriers();
+            var freeCouriersResult = await courierRepository.GetAllFreeCouriersAsync();
             var freeCouriers = freeCouriersResult.Value;
 
             // Assert
@@ -164,7 +164,7 @@ namespace DeliveryApp.IntegrationTests.Repositories
             await unitOfWork.SaveChangesAsync();
 
             // Act
-            var freeCouriersResult = await courierRepository.GetAllFreeCouriers();
+            var freeCouriersResult = await courierRepository.GetAllFreeCouriersAsync();
             var freeCouriers = freeCouriersResult.Value;
 
             // Assert
@@ -189,7 +189,7 @@ namespace DeliveryApp.IntegrationTests.Repositories
             await unitOfWork.SaveChangesAsync();
 
             // Act
-            var freeCouriersResult = await courierRepository.GetAllFreeCouriers();
+            var freeCouriersResult = await courierRepository.GetAllFreeCouriersAsync();
             var freeCouriers = freeCouriersResult.Value;
 
             // Assert
@@ -218,7 +218,7 @@ namespace DeliveryApp.IntegrationTests.Repositories
             await unitOfWork.SaveChangesAsync();
 
             // Act
-            var freeCouriersResult = await courierRepository.GetAllFreeCouriers();
+            var freeCouriersResult = await courierRepository.GetAllFreeCouriersAsync();
             var freeCouriers = freeCouriersResult.Value;
 
             // Assert
