@@ -14,6 +14,9 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
 using Newtonsoft.Json.Converters;
 using Newtonsoft.Json.Serialization;
+using OpenApi.Filters;
+using OpenApi.Formatters;
+using OpenApi.OpenApi;
 using Primitives;
 using System.Reflection;
 
