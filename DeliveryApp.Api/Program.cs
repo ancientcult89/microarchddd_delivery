@@ -1,8 +1,10 @@
 using CSharpFunctionalExtensions;
 using DeliveryApp.Api;
 using DeliveryApp.Core.Application.UseCases.Commands.AssignOrderToCourier;
+using DeliveryApp.Core.Application.UseCases.Commands.CreateCourier;
 using DeliveryApp.Core.Application.UseCases.Commands.CreateOrder;
 using DeliveryApp.Core.Application.UseCases.Commands.MoveCourier;
+using DeliveryApp.Core.Application.UseCases.Queries.GetAllCouriers;
 using DeliveryApp.Core.Application.UseCases.Queries.GetBusyCouriers;
 using DeliveryApp.Core.Application.UseCases.Queries.GetNotCompletedOrders;
 using DeliveryApp.Core.Domain.Services;
@@ -63,19 +65,26 @@ builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(Assembly.Get
 // Mediator
 builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(Assembly.GetExecutingAssembly()));
 
-// Commands
+#region Commands
 builder.Services.AddScoped<IRequestHandler<CreateOrderCommand, UnitResult<Error>>, CreateOrderCommandHandler>();
 builder.Services.AddScoped<IRequestHandler<MoveCourierCommand, UnitResult<Error>>, MoveCourierCommandHandler>();
 builder.Services.AddScoped<IRequestHandler<AssignOrderToCourierCommand, UnitResult<Error>>, AssignOrderToCourierCommandHandler>();
+builder.Services.AddScoped<IRequestHandler<CreateCourierCommand, UnitResult<Error>>, CreateCourierCommandHandler>();
+#endregion Commands
 
-// Queries
-builder.Services.AddScoped<IRequestHandler<GetBusyCouriersQuery, Maybe<GetBusyCouriersResponse>>>(serviceProvider =>
-{
-    var repository = serviceProvider.GetRequiredService<ICourierRepository>();
-    return new GetBusyCouriersQueryHandler(repository);
-});
+#region Queries
+var temporaryProvider = builder.Services.BuildServiceProvider();
+var courierRepository = temporaryProvider.GetRequiredService<ICourierRepository>();
+
+builder.Services.AddScoped<IRequestHandler<GetBusyCouriersQuery, Maybe<GetBusyCouriersResponse>>>(serviceProvider
+    => new GetBusyCouriersQueryHandler(courierRepository));
+
+builder.Services.AddScoped<IRequestHandler<GetAllCouriersQuery, Maybe<GetAllCouriersResponse>>>(serviceProvider
+    => new GetAllCouriersQueryHandler(courierRepository));
+
 builder.Services.AddScoped<IRequestHandler<GetNotCompletedOrdersQuery, Maybe<GetNotCompletedOrdersResponse>>>(_ =>
     new GetNotCompletedOrdersQueryHandler(connectionString));
+#endregion Queries
 
 // HTTP Handlers
 builder.Services.AddControllers(options => { options.InputFormatters.Insert(0, new InputFormatterStream()); })

@@ -36,5 +36,11 @@ namespace DeliveryApp.Core.Ports
         /// </summary>
         /// <returns></returns>
         Task<Maybe<List<Courier>>> GetAllBusyCouriersAsync();
+
+        /// <summary>
+        /// Возвращает всех курьеров, не зависимо от их занятости
+        /// </summary>
+        /// <returns></returns>
+        Task<Maybe<List<Courier>>> GetAllCouriersAsync();
     }
 }
