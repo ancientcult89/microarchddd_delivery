@@ -24,7 +24,7 @@ namespace DeliveryApp.Core.Application.UseCases.Queries.GetNotCompletedOrders
                 @"SELECT o.id, o.location_x, o.location_y
                     FROM public.orders as o
                     where o.status != @completedStatus;"
-            , new { completedStatus = OrderStatus.Completed });
+            , new { completedStatus = OrderStatus.Completed.ToString() });
 
             if (result.AsList().Count == 0)
                 return null;
@@ -37,8 +37,8 @@ namespace DeliveryApp.Core.Application.UseCases.Queries.GetNotCompletedOrders
             var orders = new List<OrderDto>();
             foreach (var order in result)
             {
-                var locationDto = new LocationDto(result.location_x, result.location_y);
-                var orderDto = new OrderDto(result.id, locationDto);
+                var locationDto = new LocationDto(order.location_x, order.location_y);
+                var orderDto = new OrderDto(order.id, locationDto);
                 orders.Add(orderDto);
             }
 

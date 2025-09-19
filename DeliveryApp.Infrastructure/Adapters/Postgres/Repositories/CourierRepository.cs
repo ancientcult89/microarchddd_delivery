@@ -56,5 +56,13 @@ namespace DeliveryApp.Infrastructure.Adapters.Postgres.Repositories
 
             return freeCouriers;
         }
+
+        public async Task<Maybe<List<Courier>>> GetAllCouriersAsync()
+        {
+           return await _dbContext
+                .Couriers
+                .Include(c => c.StoragePlaces)
+                .ToListAsync();
+        }
     }
 }
