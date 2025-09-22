@@ -5,10 +5,8 @@ using DeliveryApp.Core.Domain.SharedKernel;
 using DeliveryApp.Core.Ports;
 using FluentAssertions;
 using NSubstitute;
-using NSubstitute.ExceptionExtensions;
 using Primitives;
 using System;
-using System.Reflection.Metadata;
 using System.Threading;
 using System.Threading.Tasks;
 using Xunit;
@@ -17,8 +15,9 @@ namespace DeliveryApp.UnitTests.Application
 {
     public class CreateOrderCommandTests
     {
-        private readonly IOrderRepository  _orderRepository = Substitute.For<IOrderRepository>();
+        private readonly IOrderRepository _orderRepository = Substitute.For<IOrderRepository>();
         private readonly IUnitOfWork _unitOfWork = Substitute.For<IUnitOfWork>();
+        private readonly IGeoClient _geoClient = Substitute.For<IGeoClient>();
 
         [Fact]
         public async Task CantCreateOrderCommandWithInvalidValue()
@@ -59,16 +58,18 @@ namespace DeliveryApp.UnitTests.Application
         {
             //arrange
             var orderId = Guid.NewGuid();
+
             _unitOfWork.SaveChangesAsync()
                 .Returns(Task.FromResult(true));
             _orderRepository.AddAsync(Arg.Any<Order>())
                 .Returns(Task.FromResult(CorrectOrder(orderId)));
+            _geoClient.GetLocationAsync(Arg.Any<string>(), Arg.Any<CancellationToken>()).Returns(Location.CreateRandom());
 
             var createOrderCommandResult = CreateOrderCommand.Create(orderId, "random street", 6);
             createOrderCommandResult.IsSuccess.Should().BeTrue();
             var command = createOrderCommandResult.Value;
 
-            var handler = new CreateOrderCommandHandler(_orderRepository, _unitOfWork);
+            var handler = new CreateOrderCommandHandler(_orderRepository, _unitOfWork, _geoClient);
 
             //act
             var result = await handler.Handle(command, new CancellationToken());
@@ -94,13 +95,36 @@ namespace DeliveryApp.UnitTests.Application
                 .When(x => x.AddAsync(Arg.Any<Order>()))
                 .Do(x => throw new Exception("Database error"));
 
-            var handler = new CreateOrderCommandHandler(_orderRepository, _unitOfWork);
+            _geoClient.GetLocationAsync(Arg.Any<string>(), Arg.Any<CancellationToken>()).Returns(Location.CreateRandom());
+
+            var handler = new CreateOrderCommandHandler(_orderRepository, _unitOfWork, _geoClient);
 
             // Act
             var result = async () => await handler.Handle(command, CancellationToken.None);
 
             // Assert
             await result.Should().ThrowAsync<Exception>();
+        }
+
+        [Fact]
+        public async Task ReturnErrorWhenGeoServiceReturnInvalidLocation()
+        {
+            int invalidValue = 0;
+            //arrange
+            var orderId = Guid.NewGuid();
+            _unitOfWork.SaveChangesAsync()
+                .Returns(Task.FromResult(true));
+            _orderRepository.AddAsync(Arg.Any<Order>())
+                .Returns(Task.FromResult(CorrectOrder(orderId)));
+
+            Location incorrectLocation = null;
+            _geoClient.GetLocationAsync(Arg.Any<string>(), Arg.Any<CancellationToken>()).Returns(incorrectLocation);
+
+            //act
+            var createOrderCommandResult = CreateOrderCommand.Create(orderId, "random street", invalidValue);
+
+            //Assert
+            createOrderCommandResult.IsSuccess.Should().BeFalse();
         }
 
         [Fact]
@@ -119,8 +143,9 @@ namespace DeliveryApp.UnitTests.Application
             _unitOfWork
                 .When(x => x.SaveChangesAsync())
                 .Do(x => throw new Exception("Unit of work error"));
+            _geoClient.GetLocationAsync(Arg.Any<string>(), Arg.Any<CancellationToken>()).Returns(Location.CreateRandom());
 
-            var handler = new CreateOrderCommandHandler(_orderRepository, _unitOfWork);
+            var handler = new CreateOrderCommandHandler(_orderRepository, _unitOfWork, _geoClient);
 
             // Act
             var result = async () => await handler.Handle(command, CancellationToken.None);

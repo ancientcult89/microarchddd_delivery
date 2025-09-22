@@ -42,18 +42,24 @@ namespace DeliveryApp.Infrastructure.Adapters.Grpc.GeoService
 
         public async Task<Result<Location, Error>> GetLocationAsync(string address, CancellationToken cancellationToken)
         {
-            using var channel = GrpcChannel.ForAddress(_url, new GrpcChannelOptions
-            {
-                HttpHandler = _socksHttpHandler,
-                ServiceConfig = new ServiceConfig { MethodConfigs = {_methodConfig} }
-            });
+            var client = GetGeoClient();
 
-            var client = new GeoApp.Api.Geo.GeoClient(channel);
             var reply = await client.GetGeolocationAsync(new GeoApp.Api.GetGeolocationRequest { Street = address}, null, null, cancellationToken);
 
             var result = Location.Create(reply.Location.X, reply.Location.Y).Value;
 
             return result;
+        }
+
+        private GeoApp.Api.Geo.GeoClient GetGeoClient()
+        {
+            using var channel = GrpcChannel.ForAddress(_url, new GrpcChannelOptions
+            {
+                HttpHandler = _socksHttpHandler,
+                ServiceConfig = new ServiceConfig { MethodConfigs = { _methodConfig } }
+            });
+
+            return new GeoApp.Api.Geo.GeoClient(channel);
         }
     }
 }
