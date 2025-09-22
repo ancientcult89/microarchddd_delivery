@@ -9,6 +9,7 @@ using DeliveryApp.Core.Application.UseCases.Queries.GetBusyCouriers;
 using DeliveryApp.Core.Application.UseCases.Queries.GetNotCompletedOrders;
 using DeliveryApp.Core.Domain.Services;
 using DeliveryApp.Core.Ports;
+using DeliveryApp.Infrastructure.Adapters.Grpc.GeoService;
 using DeliveryApp.Infrastructure.Adapters.Postgres;
 using DeliveryApp.Infrastructure.Adapters.Postgres.Repositories;
 using MediatR;
@@ -41,6 +42,8 @@ builder.Services.AddCors(options =>
 // Configuration
 builder.Services.ConfigureOptions<SettingsSetup>();
 var connectionString = builder.Configuration["CONNECTION_STRING"];
+var geoServiceGrpcHost = builder.Configuration["GEO_SERVICE_GRPC_HOST"];
+
 builder.Services.AddScoped<IDispatchService, DispatchService>();
 
 // БД, ORM 
@@ -119,6 +122,7 @@ builder.Services.AddSwaggerGen(options =>
     options.OperationFilter<GeneratePathParamsValidationFilter>();
 });
 builder.Services.AddSwaggerGenNewtonsoftSupport();
+builder.Services.AddTransient<IGeoClient>(_ => new GeoClient(geoServiceGrpcHost));
 
 var app = builder.Build();
 
