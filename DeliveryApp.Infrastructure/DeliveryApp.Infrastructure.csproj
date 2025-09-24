@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
         <TargetFramework>net9.0</TargetFramework>
@@ -28,14 +28,17 @@
         <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="9.0.4" />
         <PackageReference Include="Quartz.Extensions.Hosting" Version="3.14.0" />
     </ItemGroup>
-
     <ItemGroup>
         <ProjectReference Include="..\DeliveryApp.Core\DeliveryApp.Core.csproj" />
     </ItemGroup>
 
     <ItemGroup>
-      <Folder Include="Adapters\Grpc\" />
       <Folder Include="Adapters\Kafka\" />
     </ItemGroup>
-
+  <ItemGroup>
+    <None Remove="Adapters\Grpc\GeoService\grpc.proto" />
+    <Protobuf Include="Adapters\Grpc\GeoService\grpc.proto">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Protobuf>
+  </ItemGroup>
 </Project>

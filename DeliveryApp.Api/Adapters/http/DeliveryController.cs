@@ -40,7 +40,7 @@ namespace DeliveryApp.Api.Adapters.http
             if (response.IsSuccess) 
                 return Ok();
 
-            return Conflict();
+            return Conflict(response.Error);
         }
 
         public override async Task<IActionResult> GetCouriers()
