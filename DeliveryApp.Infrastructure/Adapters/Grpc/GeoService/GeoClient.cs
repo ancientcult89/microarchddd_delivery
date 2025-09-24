@@ -8,11 +8,13 @@ using Primitives;
 
 namespace DeliveryApp.Infrastructure.Adapters.Grpc.GeoService
 {
-    public class GeoClient : IGeoClient
+    public class GeoClient : IGeoClient, IDisposable
     {
         private readonly MethodConfig _methodConfig;
         private readonly SocketsHttpHandler _socksHttpHandler;
         private readonly string _url;
+        private readonly GrpcChannel _channel;
+        private readonly GeoApp.Api.Geo.GeoClient _client;
 
         public GeoClient(string url)
         {
@@ -38,28 +40,38 @@ namespace DeliveryApp.Infrastructure.Adapters.Grpc.GeoService
                     RetryableStatusCodes = { StatusCode.Unavailable }
                 }
             };
-        }
 
-        public async Task<Result<Location, Error>> GetLocationAsync(string address, CancellationToken cancellationToken)
-        {
-            var client = GetGeoClient();
-
-            var reply = await client.GetGeolocationAsync(new GeoApp.Api.GetGeolocationRequest { Street = address}, null, null, cancellationToken);
-
-            var result = Location.Create(reply.Location.X, reply.Location.Y).Value;
-
-            return result;
-        }
-
-        private GeoApp.Api.Geo.GeoClient GetGeoClient()
-        {
-            using var channel = GrpcChannel.ForAddress(_url, new GrpcChannelOptions
+            _channel= GrpcChannel.ForAddress(_url, new GrpcChannelOptions
             {
                 HttpHandler = _socksHttpHandler,
                 ServiceConfig = new ServiceConfig { MethodConfigs = { _methodConfig } }
             });
+            _client = new GeoApp.Api.Geo.GeoClient(_channel);
+        }
 
-            return new GeoApp.Api.Geo.GeoClient(channel);
+        public void Dispose()
+        {
+            _channel?.Dispose();
+        }
+
+        public async Task<Result<Location, Error>> GetLocationAsync(string address, CancellationToken cancellationToken)
+        {
+            try
+            {
+                var reply = await _client.GetGeolocationAsync(new GeoApp.Api.GetGeolocationRequest { Street = address }, null, null, cancellationToken);
+                
+                var resultLocation = Location.Create(reply.Location.X, reply.Location.Y);
+                if (!resultLocation.IsSuccess)
+                    return resultLocation.Error;
+
+                var result = resultLocation.Value;
+
+                return result;
+            }
+            catch (Exception ex)
+            {
+                return new Error("infrasrtucture.error", ex.Message);
+            }
         }
     }
 }
