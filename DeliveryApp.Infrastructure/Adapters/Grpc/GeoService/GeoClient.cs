@@ -56,22 +56,15 @@ namespace DeliveryApp.Infrastructure.Adapters.Grpc.GeoService
 
         public async Task<Result<Location, Error>> GetLocationAsync(string address, CancellationToken cancellationToken)
         {
-            try
-            {
-                var reply = await _client.GetGeolocationAsync(new GeoApp.Api.GetGeolocationRequest { Street = address }, null, null, cancellationToken);
+            var reply = await _client.GetGeolocationAsync(new GeoApp.Api.GetGeolocationRequest { Street = address }, null, null, cancellationToken);
                 
-                var resultLocation = Location.Create(reply.Location.X, reply.Location.Y);
-                if (!resultLocation.IsSuccess)
-                    return resultLocation.Error;
+            var resultLocation = Location.Create(reply.Location.X, reply.Location.Y);
+            if (!resultLocation.IsSuccess)
+                return resultLocation.Error;
 
-                var result = resultLocation.Value;
+            var result = resultLocation.Value;
 
-                return result;
-            }
-            catch (Exception ex)
-            {
-                return new Error("infrasrtucture.error", ex.Message);
-            }
+            return result;
         }
     }
 }
