@@ -47,4 +47,10 @@
     <ItemGroup>
       <Folder Include="Adapters\http\Contract\" />
     </ItemGroup>
+  <ItemGroup>
+    <None Remove="Adapters\Kafka\BasketConfirmed\grpc.proto" />
+    <Protobuf Include="Adapters\Kafka\BasketConfirmed\grpc.proto">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Protobuf>
+  </ItemGroup>
 </Project>
