@@ -1,5 +1,6 @@
 using CSharpFunctionalExtensions;
 using DeliveryApp.Api;
+using DeliveryApp.Api.Adapters.Kafka.Checkout;
 using DeliveryApp.Core.Application.UseCases.Commands.AssignOrderToCourier;
 using DeliveryApp.Core.Application.UseCases.Commands.CreateCourier;
 using DeliveryApp.Core.Application.UseCases.Commands.CreateOrder;
@@ -65,9 +66,6 @@ builder.Services.AddScoped<IOrderRepository, OrderRepository>();
 // Mediator
 builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(Assembly.GetExecutingAssembly()));
 
-// Mediator
-builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(Assembly.GetExecutingAssembly()));
-
 #region Commands
 builder.Services.AddScoped<IRequestHandler<CreateOrderCommand, UnitResult<Error>>, CreateOrderCommandHandler>();
 builder.Services.AddScoped<IRequestHandler<MoveCourierCommand, UnitResult<Error>>, MoveCourierCommandHandler>();
@@ -122,7 +120,18 @@ builder.Services.AddSwaggerGen(options =>
     options.OperationFilter<GeneratePathParamsValidationFilter>();
 });
 builder.Services.AddSwaggerGenNewtonsoftSupport();
+
+// grpc
 builder.Services.AddTransient<IGeoClient>(_ => new GeoClient(geoServiceGrpcHost));
+
+// Message Broker Consumer
+builder.Services.Configure<HostOptions>(options =>
+{
+    options.BackgroundServiceExceptionBehavior = BackgroundServiceExceptionBehavior.Ignore;
+    options.ShutdownTimeout = TimeSpan.FromSeconds(30);
+});
+builder.Services.AddHostedService<ConsumerService>();
+
 
 var app = builder.Build();
 
