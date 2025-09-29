@@ -10,6 +10,7 @@ namespace DeliveryApp.Infrastructure.Adapters.Postgres
     {
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options)
         {
+            ChangeTracker.QueryTrackingBehavior = QueryTrackingBehavior.NoTracking;
         }
 
         public DbSet<Order> Orders { get; set; }

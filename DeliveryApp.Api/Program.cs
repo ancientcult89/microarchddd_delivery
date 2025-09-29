@@ -1,6 +1,8 @@
 using CSharpFunctionalExtensions;
 using DeliveryApp.Api;
+using DeliveryApp.Api.Adapters.BackgroundJobs;
 using DeliveryApp.Api.Adapters.Kafka.Checkout;
+using DeliveryApp.Core.Application.DomainEventHandlers.OrderEventHandlers;
 using DeliveryApp.Core.Application.UseCases.Commands.AssignOrderToCourier;
 using DeliveryApp.Core.Application.UseCases.Commands.CreateCourier;
 using DeliveryApp.Core.Application.UseCases.Commands.CreateOrder;
@@ -8,9 +10,11 @@ using DeliveryApp.Core.Application.UseCases.Commands.MoveCourier;
 using DeliveryApp.Core.Application.UseCases.Queries.GetAllCouriers;
 using DeliveryApp.Core.Application.UseCases.Queries.GetBusyCouriers;
 using DeliveryApp.Core.Application.UseCases.Queries.GetNotCompletedOrders;
+using DeliveryApp.Core.Domain.Model.OrderAggrerate.DomainEvents;
 using DeliveryApp.Core.Domain.Services;
 using DeliveryApp.Core.Ports;
 using DeliveryApp.Infrastructure.Adapters.Grpc.GeoService;
+using DeliveryApp.Infrastructure.Adapters.Kafka.OrderStatusChanged;
 using DeliveryApp.Infrastructure.Adapters.Postgres;
 using DeliveryApp.Infrastructure.Adapters.Postgres.Repositories;
 using MediatR;
@@ -22,6 +26,7 @@ using OpenApi.Filters;
 using OpenApi.Formatters;
 using OpenApi.OpenApi;
 using Primitives;
+using Quartz;
 using System.Reflection;
 
 
@@ -68,7 +73,7 @@ builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(Assembly.Get
 
 #region Commands
 builder.Services.AddScoped<IRequestHandler<CreateOrderCommand, UnitResult<Error>>, CreateOrderCommandHandler>();
-builder.Services.AddScoped<IRequestHandler<MoveCourierCommand, UnitResult<Error>>, MoveCourierCommandHandler>();
+builder.Services.AddScoped<IRequestHandler<MoveCouriersCommand, UnitResult<Error>>, MoveCouriersCommandHandler>();
 builder.Services.AddScoped<IRequestHandler<AssignOrderToCourierCommand, UnitResult<Error>>, AssignOrderToCourierCommandHandler>();
 builder.Services.AddScoped<IRequestHandler<CreateCourierCommand, UnitResult<Error>>, CreateCourierCommandHandler>();
 #endregion Commands
@@ -121,6 +126,29 @@ builder.Services.AddSwaggerGen(options =>
 });
 builder.Services.AddSwaggerGenNewtonsoftSupport();
 
+// CRON Jobs
+builder.Services.AddQuartz(configure =>
+{
+    var assignOrdersJobKey = new JobKey(nameof(AssignOrdersJob));
+    var moveCouriersJobKey = new JobKey(nameof(MoveCouriersJob));
+    configure
+        .AddJob<AssignOrdersJob>(assignOrdersJobKey)
+        .AddTrigger(
+            trigger => trigger.ForJob(assignOrdersJobKey)
+                .WithSimpleSchedule(
+                    schedule => schedule.WithIntervalInSeconds(1)
+                        .RepeatForever()))
+        .AddJob<MoveCouriersJob>(moveCouriersJobKey)
+        .AddTrigger(
+            trigger => trigger.ForJob(moveCouriersJobKey)
+                .WithSimpleSchedule(
+                    schedule => schedule.WithIntervalInSeconds(15)
+                        .RepeatForever()));
+    configure.UseMicrosoftDependencyInjectionJobFactory();
+});
+builder.Services.AddQuartzHostedService();
+
+
 // grpc
 builder.Services.AddTransient<IGeoClient>(_ => new GeoClient(geoServiceGrpcHost));
 
@@ -132,6 +160,12 @@ builder.Services.Configure<HostOptions>(options =>
 });
 builder.Services.AddHostedService<ConsumerService>();
 
+// Domain Event Handlers
+builder.Services.AddScoped<INotificationHandler<OrderCreatedDomainEvent>, OrderCreatedDomainEventHandler>();
+builder.Services.AddScoped<INotificationHandler<OrderCompletedDomainEvent>, OrderCompletedDomainEventHandler>();
+
+// Message Broker Producer
+builder.Services.AddScoped<IMessageBusProducer, Producer>();
 
 var app = builder.Build();
 

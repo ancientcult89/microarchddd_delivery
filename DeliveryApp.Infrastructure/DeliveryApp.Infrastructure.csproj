@@ -31,13 +31,15 @@
     <ItemGroup>
         <ProjectReference Include="..\DeliveryApp.Core\DeliveryApp.Core.csproj" />
     </ItemGroup>
-
-    <ItemGroup>
-      <Folder Include="Adapters\Kafka\" />
-    </ItemGroup>
   <ItemGroup>
     <None Remove="Adapters\Grpc\GeoService\grpc.proto" />
     <Protobuf Include="Adapters\Grpc\GeoService\grpc.proto">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Protobuf>
+  </ItemGroup>
+  <ItemGroup>
+    <None Remove="Adapters\Kafka\OrderStatusChanged\Contract.proto" />
+    <Protobuf Include="Adapters\Kafka\OrderStatusChanged\Contract.proto">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Protobuf>
   </ItemGroup>

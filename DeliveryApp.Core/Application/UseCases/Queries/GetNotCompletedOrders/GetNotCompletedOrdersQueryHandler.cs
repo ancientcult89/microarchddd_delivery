@@ -24,7 +24,7 @@ namespace DeliveryApp.Core.Application.UseCases.Queries.GetNotCompletedOrders
                 @"SELECT o.id, o.location_x, o.location_y
                     FROM public.orders as o
                     where o.status != @completedStatus;"
-            , new { completedStatus = OrderStatus.Completed.ToString() });
+            , new { completedStatus = OrderStatus.Completed.Name });
 
             if (result.AsList().Count == 0)
                 return null;

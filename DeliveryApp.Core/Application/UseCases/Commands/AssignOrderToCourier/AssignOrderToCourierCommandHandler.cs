@@ -26,8 +26,12 @@ namespace DeliveryApp.Core.Application.UseCases.Commands.AssignOrderToCourier
         public async Task<UnitResult<Error>> Handle(AssignOrderToCourierCommand request, CancellationToken cancellationToken)
         {
             var freeCouriers = await _courierRepository.GetAllFreeCouriersAsync();
+            if (freeCouriers.HasNoValue)
+                return new Error("", "");
 
             var firstCreatedOrders = await _orderRepository.GetFirstInCreatedStatusAsync();
+            if (firstCreatedOrders.HasNoValue)
+                return new Error("", "");
 
             var dispatchResult = _dispatcherService.Dispatch(firstCreatedOrders.Value, freeCouriers.Value);
 
