@@ -2,6 +2,7 @@
 using DeliveryApp.Core.Domain.Model.CourierAggregate;
 using DeliveryApp.Core.Ports;
 using Microsoft.EntityFrameworkCore;
+using System.Diagnostics;
 
 namespace DeliveryApp.Infrastructure.Adapters.Postgres.Repositories
 {
@@ -21,6 +22,7 @@ namespace DeliveryApp.Infrastructure.Adapters.Postgres.Repositories
         {
             var courier = await _dbContext
                 .Couriers
+                .Include(c => c.StoragePlaces)
                 .SingleOrDefaultAsync(c => c.Id == courierId);
             return courier;
         }
@@ -59,10 +61,11 @@ namespace DeliveryApp.Infrastructure.Adapters.Postgres.Repositories
 
         public async Task<Maybe<List<Courier>>> GetAllCouriersAsync()
         {
-           return await _dbContext
+            var res = await _dbContext
                 .Couriers
                 .Include(c => c.StoragePlaces)
                 .ToListAsync();
+            return res;
         }
     }
 }

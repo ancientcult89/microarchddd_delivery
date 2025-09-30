@@ -4,7 +4,9 @@ using DeliveryApp.Core.Domain.SharedKernel;
 using DeliveryApp.Infrastructure.Adapters.Postgres;
 using DeliveryApp.Infrastructure.Adapters.Postgres.Repositories;
 using FluentAssertions;
+using MediatR;
 using Microsoft.EntityFrameworkCore;
+using NSubstitute;
 using Testcontainers.PostgreSql;
 using TestUtils;
 using Xunit;
@@ -14,8 +16,12 @@ namespace DeliveryApp.IntegrationTests.Repositories
     public class CourierRepositoryShould : IAsyncLifetime
     {
         private ApplicationDbContext _context;
+        private readonly IMediator _mediator;
 
-        public CourierRepositoryShould() { }
+        public CourierRepositoryShould() 
+        {
+            _mediator = Substitute.For<IMediator>();
+        }
 
         #region DB configuring
         private readonly PostgreSqlContainer _postgreSqlContainer = new PostgreSqlBuilder()
@@ -60,7 +66,7 @@ namespace DeliveryApp.IntegrationTests.Repositories
             //Act
             var courierRepository = new CourierRepository(_context);
             await courierRepository.AddAsync(testCourier);
-            var unitOfWork = new UnitOfWork(_context);
+            var unitOfWork = new UnitOfWork(_context, _mediator);
             await unitOfWork.SaveChangesAsync();
             var getCourierResult = await courierRepository.GetAsync(testCourier.Id);
 
@@ -82,7 +88,7 @@ namespace DeliveryApp.IntegrationTests.Repositories
 
             var courierRepository = new CourierRepository(_context);
             await courierRepository.AddAsync(testCourier);
-            var unitOfWork = new UnitOfWork(_context);
+            var unitOfWork = new UnitOfWork(_context, _mediator);
             await unitOfWork.SaveChangesAsync();
 
             //Act
@@ -117,7 +123,7 @@ namespace DeliveryApp.IntegrationTests.Repositories
         {
             // Arrange
             var courierRepository = new CourierRepository(_context);
-            var unitOfWork = new UnitOfWork(_context);
+            var unitOfWork = new UnitOfWork(_context, _mediator);
 
             var freeCourier1 = Courier.Create("Free сourier 1", 2, Location.CreateRandom().Value).Value;
             var freeCourier2 = Courier.Create("Free сourier 2", 3, Location.CreateRandom().Value).Value;
@@ -148,7 +154,7 @@ namespace DeliveryApp.IntegrationTests.Repositories
         {
             // Arrange
             var courierRepository = new CourierRepository(_context);
-            var unitOfWork = new UnitOfWork(_context);
+            var unitOfWork = new UnitOfWork(_context, _mediator);
 
             var busyCourier1 = Courier.Create("Busy сourier 1", 2, Location.CreateRandom().Value).Value;
             var busyCourier2 = Courier.Create("Busy сourier 2", 3, Location.CreateRandom().Value).Value;
@@ -177,7 +183,7 @@ namespace DeliveryApp.IntegrationTests.Repositories
         {
             // Arrange
             var courierRepository = new CourierRepository(_context);
-            var unitOfWork = new UnitOfWork(_context);
+            var unitOfWork = new UnitOfWork(_context, _mediator);
 
             var freeCourier1 = Courier.Create("Free сourier 1", 2, Location.CreateRandom().Value).Value;
             var freeCourier2 = Courier.Create("Free сourier 2", 3, Location.CreateRandom().Value).Value;
@@ -205,7 +211,7 @@ namespace DeliveryApp.IntegrationTests.Repositories
         {
             // Arrange
             var courierRepository = new CourierRepository(_context);
-            var unitOfWork = new UnitOfWork(_context);
+            var unitOfWork = new UnitOfWork(_context, _mediator);
 
             var courier = Courier.Create("Multi Storage Courier", 2, Location.CreateRandom().Value).Value;
             courier.AddStoragePlace("Backpack", 5);

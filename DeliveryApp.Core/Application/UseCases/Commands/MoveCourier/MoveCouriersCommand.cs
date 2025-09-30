@@ -4,7 +4,7 @@ using Primitives;
 
 namespace DeliveryApp.Core.Application.UseCases.Commands.MoveCourier
 {
-    public class MoveCourierCommand : IRequest<UnitResult<Error>>
+    public class MoveCouriersCommand : IRequest<UnitResult<Error>>
     {
     }
 }

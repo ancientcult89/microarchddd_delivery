@@ -1,5 +1,6 @@
 ﻿using CSharpFunctionalExtensions;
 using DeliveryApp.Core.Domain.Model.OrderAggrerate;
+using DeliveryApp.Core.Domain.Model.OrderAggrerate.DomainEvents;
 using DeliveryApp.Core.Domain.SharedKernel;
 using DeliveryApp.Core.Ports;
 using MediatR;

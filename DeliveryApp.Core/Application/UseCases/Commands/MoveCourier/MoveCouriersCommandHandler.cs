@@ -8,14 +8,14 @@ using Primitives;
 
 namespace DeliveryApp.Core.Application.UseCases.Commands.MoveCourier
 {
-    public class MoveCourierCommandHandler : IRequestHandler<MoveCourierCommand, UnitResult<Error>>
+    public class MoveCouriersCommandHandler : IRequestHandler<MoveCouriersCommand, UnitResult<Error>>
     {
         private readonly IOrderRepository _orderRepository;
         private readonly IUnitOfWork _unitOfWork;
         private readonly ICourierRepository _courierRepository;
         private readonly IDispatchService _dispatcherService;
 
-        public MoveCourierCommandHandler(
+        public MoveCouriersCommandHandler(
             IOrderRepository orderRepository,
             IUnitOfWork unitOfWork,
             ICourierRepository courierRepository,
@@ -27,7 +27,7 @@ namespace DeliveryApp.Core.Application.UseCases.Commands.MoveCourier
             _dispatcherService = dispatchService;
         }
 
-        public async Task<UnitResult<Error>> Handle(MoveCourierCommand request, CancellationToken cancellationToken)
+        public async Task<UnitResult<Error>> Handle(MoveCouriersCommand request, CancellationToken cancellationToken)
         {
             var allBusyCouriers = await _courierRepository.GetAllBusyCouriersAsync();
 
@@ -44,7 +44,7 @@ namespace DeliveryApp.Core.Application.UseCases.Commands.MoveCourier
 
         public async Task<UnitResult<Error>> MoveSingleCourierAsync(Courier courier)
         {
-            Guid courierOrderId = courier.StoragePlaces.Where(sp => sp.OrderId != null).First()?.Id ?? Guid.Empty;
+            Guid courierOrderId = courier.StoragePlaces.Where(sp => sp.OrderId != null).First()?.OrderId ?? Guid.Empty;
 
             //если по какой-то причене в выборку занятых всё же попал незанятый (например,
             //в параллельной выборке его освободили, но выборка сработала до того как транзакцию закоммитили) - скипнем его
