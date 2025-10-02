@@ -13,7 +13,6 @@ namespace DeliveryApp.Core.Application.UseCases.Commands.MoveCourier
         private readonly IOrderRepository _orderRepository;
         private readonly IUnitOfWork _unitOfWork;
         private readonly ICourierRepository _courierRepository;
-        private readonly IDispatchService _dispatcherService;
 
         public MoveCouriersCommandHandler(
             IOrderRepository orderRepository,
@@ -24,7 +23,6 @@ namespace DeliveryApp.Core.Application.UseCases.Commands.MoveCourier
             _orderRepository = orderRepository;
             _unitOfWork = unitOfWork;
             _courierRepository = courierRepository;
-            _dispatcherService = dispatchService;
         }
 
         public async Task<UnitResult<Error>> Handle(MoveCouriersCommand request, CancellationToken cancellationToken)

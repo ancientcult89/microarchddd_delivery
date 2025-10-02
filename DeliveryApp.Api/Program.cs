@@ -16,6 +16,7 @@ using DeliveryApp.Core.Ports;
 using DeliveryApp.Infrastructure.Adapters.Grpc.GeoService;
 using DeliveryApp.Infrastructure.Adapters.Kafka.OrderStatusChanged;
 using DeliveryApp.Infrastructure.Adapters.Postgres;
+using DeliveryApp.Infrastructure.Adapters.Postgres.BackgroundJobs;
 using DeliveryApp.Infrastructure.Adapters.Postgres.Repositories;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
@@ -131,7 +132,13 @@ builder.Services.AddQuartz(configure =>
 {
     var assignOrdersJobKey = new JobKey(nameof(AssignOrdersJob));
     var moveCouriersJobKey = new JobKey(nameof(MoveCouriersJob));
+    var processOutboxMessagesJobKey = new JobKey(nameof(ProcessOutboxMessagesJob));
     configure
+        .AddJob<ProcessOutboxMessagesJob>(processOutboxMessagesJobKey)
+        .AddTrigger(trigger => trigger.ForJob(processOutboxMessagesJobKey)
+                .WithSimpleSchedule(
+                    schedule => schedule.WithIntervalInSeconds(3)
+                        .RepeatForever()))
         .AddJob<AssignOrdersJob>(assignOrdersJobKey)
         .AddTrigger(
             trigger => trigger.ForJob(assignOrdersJobKey)
@@ -144,6 +151,7 @@ builder.Services.AddQuartz(configure =>
                 .WithSimpleSchedule(
                     schedule => schedule.WithIntervalInSeconds(15)
                         .RepeatForever()));
+
     configure.UseMicrosoftDependencyInjectionJobFactory();
 });
 builder.Services.AddQuartzHostedService();
